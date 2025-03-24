@@ -11,12 +11,25 @@ public class PlayerController : MonoBehaviour
     public float speed = 5.0f;
     public bool hasPowerup;
     public GameObject powerupIndicator;
+    public GameObject minePrefab;
+    public bool isExistMine;
+
+    private void OnEnable()
+    {
+        Mine.OnMineReady += MineIsReady;
+    }
+
+    private void OnDisable()
+    {
+        Mine.OnMineReady -= MineIsReady;
+    }
 
     void Start()
     {
         powerupIndicator.gameObject.SetActive(false);
         playerRb = GetComponent<Rigidbody>();    
         focalPoint = GameObject.Find("FocalPoint");
+        MineIsReady();
     }
 
     void Update()
@@ -26,6 +39,12 @@ public class PlayerController : MonoBehaviour
             * speed * fowardInput);
         powerupIndicator.transform.position = transform.position
             + new Vector3(0, -0.5f, 0);
+        if (!isExistMine && Input.GetKeyDown(KeyCode.Space))
+        {
+            Instantiate(minePrefab, transform.position, 
+                minePrefab.transform.rotation);
+            isExistMine = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -58,5 +77,10 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(POWERUP_TIME);
         hasPowerup = false;
         powerupIndicator.gameObject.SetActive(false);
+    }
+
+    public void MineIsReady()
+    {
+        isExistMine = false;
     }
 }
